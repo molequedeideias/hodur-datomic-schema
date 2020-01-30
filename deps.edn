@@ -3,7 +3,7 @@
  :deps
         {org.clojure/clojure {:mvn/version "1.9.0"}
          hodur/engine        {:git/url "https://github.com/molequedeideias/hodur-engine"
-                              :sha     "8a48d71036d922a60228f60dea7c04979b3c90e4"}
+                              :sha     "02d96de9f0e508777211e80ee74153dcedc93cf3"}
          camel-snake-kebab   {:mvn/version "0.4.0"}
          datascript          {:mvn/version "0.16.7"}
          com.rpl/specter     {:mvn/version "1.1.3"}}

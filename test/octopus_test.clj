@@ -1,6 +1,6 @@
 (ns octopus-test
   (:require [clojure.test :refer :all]
-            [hodur-engine.octopus-extensions :as engine]
+            [hodur-engine.octopus :as engine]
             [datascript.core :as d]
             [hodur-datomic-schema.octopus :as datomic]
             [com.rpl.specter :refer :all]
