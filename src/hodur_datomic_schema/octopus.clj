@@ -184,11 +184,9 @@
 
 (defn schema
   [conn]
-  (let [schema-enums (schema-dominios-enums conn)]
-    (-> (if (empty? schema-enums)
-          [(schema-atributos-e-enums conn)]
-          [(schema-dominios-enums conn) (schema-atributos-e-enums conn)])
-        separar-tuplas-no-schema)))
+  (->> [(schema-dominios-enums conn) (schema-atributos-e-enums conn)]
+       separar-tuplas-no-schema
+       (remove empty?)))
 
 (comment
   (do
