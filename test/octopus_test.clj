@@ -53,6 +53,13 @@
                               ^{:datomic/type :db.type/bigdec
                                 :deprecation  "This is deprecated"}
                               bigdec-type
+                              ^{:datomic/type :db.type/tuple
+                                :datomic/tupleAttrs [:employee/age :employee/co-workers]
+                                :datomic/unique :db.unique/identity
+                                :cardinality 1
+                                :doc "Identificador entidade composta"
+                                :spec/tag false}
+                              composite-key
                               ^EmploymentType employment-type
                               ^SearchResult last-search-results]
 
@@ -88,19 +95,23 @@
                    :employee/start-date
                    :employee/supervisor
                    :employee/tupla
-                   :employee/uri-type] #_(match (mt/in-any-order [:employee/age
-                                                                  :employee/bigdec-type
-                                                                  :employee/co-workers
-                                                                  :employee/double-type
-                                                                  :employee/employment-type
-                                                                  :employee/last-search-results
-                                                                  :employee/name
-                                                                  :employee/number
-                                                                  :employee/salary
-                                                                  :employee/start-date
-                                                                  :employee/supervisor
-                                                                  :employee/tupla
-                                                                  :employee/uri-type])))
+                   :employee/uri-type
+                   :employee/composite-key] #_(match (mt/in-any-order [:employee/age
+                                                                       :employee/bigdec-type
+                                                                       :employee/co-workers
+                                                                       :employee/double-type
+                                                                       :employee/employment-type
+                                                                       :employee/last-search-results
+                                                                       :employee/name
+                                                                       :employee/number
+                                                                       :employee/salary
+                                                                       :employee/start-date
+                                                                       :employee/supervisor
+                                                                       :employee/tupla
+                                                                       :employee/uri-type])))
+
+             (fact (select  [LAST ALL :db/ident] s)
+               => [:employee/composite-key])
 
              (fact
                (select [ALL FIRST]

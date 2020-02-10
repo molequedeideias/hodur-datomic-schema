@@ -174,12 +174,21 @@
                       :db/ident enum})
           dominios)))
 
+;;TODO REESCREVER COM MEANDER, VAI FICAR MUITO MAIS LIMPO...
+(defn ^:private separar-tuplas-no-schema
+  [schema-octopus]
+  (let [tuplas (select [(nthpath 1) ALL #(:db/tupleAttrs %)] schema-octopus)]
+    [(first schema-octopus)
+     (vec (remove (set tuplas) (second schema-octopus)))
+     tuplas]))
+
 (defn schema
   [conn]
   (let [schema-enums (schema-dominios-enums conn)]
-    (if (empty? schema-enums)
-      [(schema-atributos-e-enums conn)]
-      [(schema-dominios-enums conn) (schema-atributos-e-enums conn)])))
+    (-> (if (empty? schema-enums)
+          [(schema-atributos-e-enums conn)]
+          [(schema-dominios-enums conn) (schema-atributos-e-enums conn)])
+        separar-tuplas-no-schema)))
 
 (comment
   (do
