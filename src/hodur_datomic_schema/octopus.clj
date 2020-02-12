@@ -144,6 +144,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn schema-atributos-e-enums
+  "Diferença da implementação core é que ele gera atributos de interfaces"
   [conn]
   (let [selector '[* {:field/_parent
                       [* {:field/type [*]}]}]
@@ -151,7 +152,7 @@
                         :where
                         [?e :datomic/tag true]
                         [?e :type/nature :user]
-                        (not [?e :type/interface true])
+                        #_(not [?e :type/interface true])
                         (not [?e :type/union true])]
                       @conn)
                  vec flatten)
