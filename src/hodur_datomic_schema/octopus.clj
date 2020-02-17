@@ -168,7 +168,7 @@
 (defn schema-dominios-enums
   [conn]
   (let [dominios (d/q '[:find [?dominio ...]
-                        :where [_ :model.enum/dominio ?dominio]]
+                        :where [_ :model.attr/dominio ?dominio]]
                       @conn)]
 
     (mapv (fn [enum] {:db/doc   (str "Enums do domínio " enum)
