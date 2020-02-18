@@ -35,6 +35,10 @@
     dat-type
     (primitive-or-ref-type field)))
 
+(defn ^:private keys-tupla-composite
+  [field]
+  (-> field :datomic/tupleAttrs))
+
 (defn ^:private get-cardinality
   [{:keys [field/cardinality]}]
   (if cardinality
@@ -114,6 +118,10 @@
                                 :db/cardinality (get-cardinality field))
 
           (= (get-value-type field) :db.type/string) (assoc :db/fulltext true)
+
+          (= (get-value-type field) :db.type/uuid) (assoc :db/unique :db.unique/identity)
+
+          (keys-tupla-composite field) (assoc :db/unique :db.unique/identity)
 
           ;;defaults
           #_(not is-enum?) #_(merge (transform [MAP-KEYS]
