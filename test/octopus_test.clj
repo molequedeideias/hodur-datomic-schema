@@ -175,10 +175,14 @@
                                     Person
                                     [^{:type                       String
                                        :model.attr/apenas-runtime? false}
-                                     name]
+                                     name
+                                     ^{:type                       ID
+                                       :datomic/unique :db.unique/value}
+                                     id]
 
                                     Employee
-                                    [^String name
+                                    [^ID id
+                                     ^String name
                                      ^{:datomic/type          :db.type/tuple
                                        :datomic/tupleType     :db/long
                                        :model.attr/persisted? true} tupla
@@ -208,7 +212,6 @@
                                      bigdec-type
                                      ^{:datomic/type       :db.type/tuple
                                        :datomic/tupleAttrs [:employee/age :employee/co-workers]
-                                       :datomic/unique     :db.unique/identity
                                        :cardinality        1
                                        :doc                "Identificador entidade composta"
                                        :spec/tag           false}
@@ -232,9 +235,14 @@
                                     Estadoworkflow
                                     [ACEITO]])]
 
+           (fact "Todos ID ou Tuplas- composite tem :db/unique, default :db.unique/entity, sem precisar declarar"
+                 (select [ALL ALL (collect-one :db/ident) (must :db/unique)] s)
+                 =>  (match (mt/in-any-order [[:employee/id :db.unique/identity] [:employee/number :db.unique/identity]
+                                              [:person/id :db.unique/value][:employee/composite-key :db.unique/identity]])))
+
            (fact "Todos String tem full-text, default true, sem precisar declarar"
                  (select [ALL ALL (collect-one :db/ident) (must :db/fulltext)] s)
-                 => [[:employee/name true] [:employee/number false] [:person/name true]])
+                 => (match (mt/in-any-order [[:employee/name true] [:employee/number false] [:person/name true]])))
 
            (facts "Só os atributos marcados explicitamente como :model.attr/apenas-runtime? true não tem default false.
         Gerado tb os campos de Interface, (Person) e composite-keys."
@@ -242,11 +250,13 @@
                     (set (select [ALL FIRST]
                                  (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/apenas-runtime? %) false))] s)))
                     => #{:person/name
+                         :person/id
                          :employee/age
                          :employee/bigdec-type
                          :employee/co-workers
                          :employee/double-type
                          :employee/employment-type
+                         :employee/id
                          :employee/status
                          :employee/last-search-results
                          :employee/name
@@ -316,8 +326,11 @@
                                      name
                                      ^Estado-Workflow-Person status]
 
+
+
                                     Employee
-                                    [^String name
+                                    [
+                                     ^String name
                                      ^{:datomic/type          :db.type/tuple
                                        :datomic/tupleType     :db/long
                                        :model.attr/persisted? true} tupla
