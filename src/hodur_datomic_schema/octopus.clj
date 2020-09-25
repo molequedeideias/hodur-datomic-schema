@@ -71,7 +71,8 @@
    :model.attr/metodo-de-calculo         :formiguinhas/metodo-de-calculo
    :model.attr/dominio                   :formiguinhas/dominios-que-pode-referenciar
    :model.attr/metadados-evento-externo? :formiguinhas/atributo-metadados-evento-externo?
-   :model.attr/persiste-estado-workflow? :formiguinhas/atributo-que-persiste-estado-workflow?})
+   :model.attr/persiste-estado-workflow? :formiguinhas/atributo-que-persiste-estado-workflow?
+   :model.attr/restricoes-persistencia   :formiguinhas/restricoes-persistencia})
 
 (def ^:private table-customized-datomic-db-atributes-for-enums
   {:model.enum/dominio :formiguinhas/dominio})

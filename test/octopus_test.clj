@@ -185,7 +185,8 @@
                                      ^String name
                                      ^{:datomic/type          :db.type/tuple
                                        :datomic/tupleType     :db/long
-                                       :model.attr/persisted? true} tupla
+                                       :model.attr/persisted? true
+                                       :model.attr/restricoes-persistencia "[[?eid :model/attr]]"} tupla
                                      ^{:type             String
                                        :doc              "The very employee number of this employee"
                                        :datomic/unique   :db.unique/identity
@@ -285,12 +286,12 @@
 
                   (fact "2. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) :enum/teste))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/teste]))] s))
                         => [:employment-type/full-time :employment-type/part-time])
 
                   (fact "1. gera corretamente os metadados que podem referenciar enums"
                         (select [ALL FIRST]
-                                (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominios-que-pode-referenciar %) :enum/teste))] s))
+                                (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominios-que-pode-referenciar %):enum/teste))] s))
                         => [:employee/employment-type])
 
                   (fact "2. gera corretamente os metadados que podem referenciar enums"
@@ -300,8 +301,11 @@
 
                   (fact "Gera corretamente ps dominios de enums na primeira posicao do vetor de transacoes"
                         (set (select [FIRST ALL :db/ident] s))
-                        => #{:enum/teste :enum/estado-do-workflow})))))
+                        => #{:enum/teste :enum/estado-do-workflow})
 
+                  (fact "1.Gera corretamente atributos com propreidade de restricao de persistencia "
+                        (select-one [(nthpath 1) ALL (collect-one :db/ident) (must :formiguinhas/restricoes-persistencia)] s)
+                        => [:employee/tupla "[[?eid :model/attr]]"])))))
 (deftest test-expansion-ocotopus-2
 
   (facts "Diferencas entre ocotopus e core"
@@ -391,17 +395,17 @@
 
                   (fact "2. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) :enum/employment-type))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/employment-type]))] s))
                         => [:employment-type/full-time :employment-type/part-time])
 
                   (fact "3. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) :enum/estado-workflow.employee))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/estado-workflow.employee]))] s))
                         => [:estado-workflow-employee/aceito])
 
                   (fact "4. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) :enum/estado-workflow.person))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/estado-workflow.person]))] s))
                         => [:estado-workflow-person/aceito])
 
 
@@ -418,6 +422,8 @@
                   (fact "Gera corretamente ps dominios de enums na primeira posicao do vetor de transacoes"
                         (set (select [FIRST ALL :db/ident] s))
                         => #{:enum/employment-type :enum/estado-workflow.employee :enum/estado-workflow.person :enum/estados-workflow})))))
+
+
 
 
 
