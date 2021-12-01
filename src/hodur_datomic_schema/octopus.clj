@@ -65,14 +65,15 @@
 
 
 (def ^:private table-customized-datomic-db-atributes-for-fields
-  {:model.attr/calculado?                :formiguinhas/calculado?
-   :model.attr/apenas-runtime?           :formiguinhas/apenas-runtime?
-   :model.attr/estrategia-calculo        :formiguinhas/estrategia-calculo
-   :model.attr/metodo-de-calculo         :formiguinhas/metodo-de-calculo
-   :model.attr/dominio                   :formiguinhas/dominios-que-pode-referenciar
-   :model.attr/metadados-evento-externo? :formiguinhas/atributo-metadados-evento-externo?
-   :model.attr/persiste-estado-workflow? :formiguinhas/atributo-que-persiste-estado-workflow?
-   :model.attr/restricoes-persistencia   :formiguinhas/restricoes-persistencia})
+  {:model.attr/calculado?                    :formiguinhas/calculado?
+   :model.attr/apenas-runtime?               :formiguinhas/apenas-runtime?
+   :model.attr/estrategia-calculo            :formiguinhas/estrategia-calculo
+   :model.attr/metodo-de-calculo             :formiguinhas/metodo-de-calculo
+   :model.attr/dominio                       :formiguinhas/dominios-que-pode-referenciar
+   :model.attr/metadados-evento-externo?     :formiguinhas/atributo-metadados-evento-externo?
+   :model.attr/persiste-estado-workflow?     :formiguinhas/atributo-que-persiste-estado-workflow?
+   :model.attr/restricoes-persistencia       :formiguinhas/restricoes-persistencia
+   :model.attr/dominios-que-pode-referenciar :formiguinhas/dominios-que-pode-referenciar})
 
 (def ^:private table-customized-datomic-db-atributes-for-enums
   {:model.enum/dominio :formiguinhas/dominio})

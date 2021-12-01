@@ -343,9 +343,16 @@
                                        :datomic/unique   :db.unique/identity
                                        :datomic/fulltext false}
                                      number
+                                     ^{:datomic/type          :db.type/tuple
+                                       :datomic/tupleType     :db/long
+                                       :model.attr/persisted? true} tupla
+                                     ^{:datomic/type          :db.type/ref
+                                       :model.attr/dominios-que-pode-referenciar [:enum.dominio/atributos-do-schema]}
+                                     atributo-que-pode-referenciar-outro-atributo
                                      ^EmploymentType employment-type
                                      ^Estado-Workflow-Employee status
                                      ^SearchResult last-search-results]
+
 
                                     ^{:union true}
                                     SearchResult
@@ -412,7 +419,8 @@
                   (fact "2. gera corretamente os metadados que podem referenciar enums"
                         (set (select [ALL FIRST]
                                      (select [ALL ALL (collect-one :db/ident) (must :formiguinhas/dominios-que-pode-referenciar)] s)))
-                        => #{:employee/employment-type :employee/status :person/status :workflow/status})
+                        => #{:employee/employment-type :employee/status :person/status :workflow/status
+                             :employee/atributo-que-pode-referenciar-outro-atributo})
 
                   (fact "1. gera corretamente os metadados que podem referenciar enums"
                         (select [ALL FIRST]
