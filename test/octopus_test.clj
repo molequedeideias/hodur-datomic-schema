@@ -211,6 +211,8 @@
                                      ^{:datomic/type :db.type/bigdec
                                        :deprecation  "This is deprecated"}
                                      bigdec-type
+                                     ^{:datomic/type :db.type/uuid}
+                                     uuid
                                      ^{:datomic/type       :db.type/tuple
                                        :datomic/tupleAttrs [:employee/age :employee/co-workers]
                                        :cardinality        1
@@ -236,7 +238,8 @@
                                     Estadoworkflow
                                     [ACEITO]])]
 
-           (fact "Todos ID ou Tuplas- composite tem :db/unique, default :db.unique/entity, sem precisar declarar"
+           (fact "Todos ID ou Tuplas- composite tem :db/unique, default :db.unique/entity, sem precisar declarar. nao gera mais unique para
+           tipos datomic uuid declarados como type."
                  (select [ALL ALL (collect-one :db/ident) (must :db/unique)] s)
                  =>  (match (mt/in-any-order [[:employee/id :db.unique/identity] [:employee/number :db.unique/identity]
                                               [:person/id :db.unique/value][:employee/composite-key :db.unique/identity]])))
@@ -267,6 +270,7 @@
                          :employee/supervisor
                          :employee/tupla
                          :employee/uri-type
+                         :employee/uuid
                          :employee/composite-key})
 
 

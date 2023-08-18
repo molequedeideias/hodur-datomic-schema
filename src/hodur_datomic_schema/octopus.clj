@@ -25,6 +25,10 @@
 
 (defmethod primitive-or-ref-type "DateTime" [_] :db.type/instant)
 
+(defmethod primitive-or-ref-type "Keyword" [_] :db.type/keyword)
+
+(defmethod primitive-or-ref-type "Symbol" [_] :db.type/symbol)
+
 (defmethod primitive-or-ref-type "ID" [_] :db.type/uuid)
 
 (defmethod primitive-or-ref-type :default [_] :db.type/ref)
@@ -85,6 +89,7 @@
    :datomic.attr/preds :db.attr/preds})
 
 
+
 (defn ^:private assoc-attributes
   [m field]
   (let [table (merge {:datomic/isComponent :db/isComponent
@@ -121,7 +126,9 @@
 
           (= (get-value-type field) :db.type/string) (assoc :db/fulltext true)
 
-          (= (get-value-type field) :db.type/uuid) (assoc :db/unique :db.unique/identity)
+          #_#_(= (get-value-type field) :db.type/uuid) (assoc :db/unique :db.unique/identity)
+
+          (= (-> field :field/type :type/name) "ID") (assoc :db/unique :db.unique/identity)
 
           (keys-tupla-composite field) (assoc :db/unique :db.unique/identity)
 
