@@ -1,16 +1,13 @@
 (ns octopus-test
   (:require [clojure.test :refer :all]
             [hodur-engine.octopus :as engine]
-            [datascript.core :as d]
-            [datascript.query-v3 :as q]
             [hodur-datomic-schema.octopus :as datomic]
             [hodur-datomic-schema.core :as datomic-core]
             [com.rpl.specter :refer :all]
             [midje.sweet :refer :all]
             [matcher-combinators.midje :refer [match throws-match]]
             [matcher-combinators.matchers :as mt]
-            [clojure.set :as set]
-    #_[sc.api :as sc]))
+            [clojure.set :as set]))
 
 
 (defn ^:private schema->datomic [s]
@@ -166,6 +163,7 @@
 
   (facts "Diferencas entre ocotopus e core"
          (let [s (schema->datomic '[^{:datomic/tag                true
+
                                       :model.attr/apenas-runtime? false}
 
                                     default
@@ -176,21 +174,24 @@
                                     [^{:type                       String
                                        :model.attr/apenas-runtime? false}
                                      name
-                                     ^{:type                       ID
-                                       :datomic/unique :db.unique/value}
+                                     ^{:type           ID
+                                       :datomic/unique :db.unique/value
+                                       :optional       false}
                                      id]
 
                                     Employee
                                     [^ID id
                                      ^String name
-                                     ^{:datomic/type          :db.type/tuple
-                                       :datomic/tupleType     :db/long
-                                       :model.attr/persisted? true
-                                       :model.attr/restricoes-persistencia "[[?eid :model/attr]]"} tupla
+                                     ^{:datomic/type                       :db.type/tuple
+                                       :datomic/tupleType                  :db/long
+                                       :model.attr/persisted?              true
+                                       :model.attr/restricoes-persistencia "[[?eid :model/attr]]"}
+                                     tupla
                                      ^{:type             String
                                        :doc              "The very employee number of this employee"
                                        :datomic/unique   :db.unique/identity
-                                       :datomic/fulltext false}
+                                       :optional         true
+                                       :datomic/fulltext true}
                                      number
                                      ^Float salary
                                      ^Integer age
@@ -241,12 +242,12 @@
            (fact "Todos ID ou Tuplas- composite tem :db/unique, default :db.unique/entity, sem precisar declarar. nao gera mais unique para
            tipos datomic uuid declarados como type."
                  (select [ALL ALL (collect-one :db/ident) (must :db/unique)] s)
-                 =>  (match (mt/in-any-order [[:employee/id :db.unique/identity] [:employee/number :db.unique/identity]
-                                              [:person/id :db.unique/value][:employee/composite-key :db.unique/identity]])))
+                 => (match (mt/in-any-order [[:employee/id :db.unique/identity] [:employee/number :db.unique/identity]
+                                             [:person/id :db.unique/value] [:employee/composite-key :db.unique/identity]])))
 
            (fact "Todos String tem full-text, default true, sem precisar declarar"
                  (select [ALL ALL (collect-one :db/ident) (must :db/fulltext)] s)
-                 => (match (mt/in-any-order [[:employee/name true] [:employee/number false] [:person/name true]])))
+                 => (match (mt/in-any-order [[:employee/name false] [:employee/number true] [:person/name false]])))
 
            (facts "Só os atributos marcados explicitamente como :model.attr/apenas-runtime? true não tem default false.
         Gerado tb os campos de Interface, (Person) e composite-keys."
@@ -290,12 +291,12 @@
 
                   (fact "2. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/teste]))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [:enum/teste]))] s))
                         => [:employment-type/full-time :employment-type/part-time])
 
                   (fact "1. gera corretamente os metadados que podem referenciar enums"
                         (select [ALL FIRST]
-                                (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominios-que-pode-referenciar %):enum/teste))] s))
+                                (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominios-que-pode-referenciar %) :enum/teste))] s))
                         => [:employee/employment-type])
 
                   (fact "2. gera corretamente os metadados que podem referenciar enums"
@@ -309,7 +310,13 @@
 
                   (fact "1.Gera corretamente atributos com propreidade de restricao de persistencia "
                         (select-one [(nthpath 1) ALL (collect-one :db/ident) (must :formiguinhas/restricoes-persistencia)] s)
-                        => [:employee/tupla "[[?eid :model/attr]]"])))))
+                        => [:employee/tupla "[[?eid :model/attr]]"])
+
+                  (fact "1. gera corretamente os metadados de opcionalidade"
+                        (select [ALL FIRST]
+                                (select [ALL ALL (collect-one :db/ident) (pred :formiguinhas/opcional?)] s))
+                        => [:employee/number])))))
+
 (deftest test-expansion-ocotopus-2
 
   (facts "Diferencas entre ocotopus e core"
@@ -322,9 +329,9 @@
 
                                     ^{:interface true}
                                     Workflow
-                                    [^{:type Estados-Workflow, :cardinality 1, :optional false
+                                    [^{:type                                 Estados-Workflow, :cardinality 1, :optional false
                                        :model.attr/persiste-estado-workflow? true
-                                       :doc  "Estado da máquina de estados associada à entidade"} status
+                                       :doc                                  "Estado da máquina de estados associada à entidade"} status
                                      ^{:type String, :cardinality 1, :optional false,
                                        :doc  "Identificador do workflow - namespace completo"} ident]
 
@@ -345,12 +352,12 @@
                                      ^{:type             String
                                        :doc              "The very employee number of this employee"
                                        :datomic/unique   :db.unique/identity
-                                       :datomic/fulltext false}
+                                       :datomic/fulltext true}
                                      number
                                      ^{:datomic/type          :db.type/tuple
                                        :datomic/tupleType     :db/long
                                        :model.attr/persisted? true} tupla
-                                     ^{:datomic/type          :db.type/ref
+                                     ^{:datomic/type                             :db.type/ref
                                        :model.attr/dominios-que-pode-referenciar [:enum.dominio/atributos-do-schema]}
                                      atributo-que-pode-referenciar-outro-atributo
                                      ^EmploymentType employment-type
@@ -406,17 +413,17 @@
 
                   (fact "2. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/employment-type]))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [:enum/employment-type]))] s))
                         => [:employment-type/full-time :employment-type/part-time])
 
                   (fact "3. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/estado-workflow.employee]))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [:enum/estado-workflow.employee]))] s))
                         => [:estado-workflow-employee/aceito])
 
                   (fact "4. gera corretamente os enums, na posicao correta, juntos com os atributos comuns, e com as referencias do dominio "
                         (select [ALL FIRST]
-                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [ :enum/estado-workflow.person]))] s))
+                                (select [(nthpath 1) ALL (collect-one :db/ident) (pred #(= (:formiguinhas/dominio %) [:enum/estado-workflow.person]))] s))
                         => [:estado-workflow-person/aceito])
 
 

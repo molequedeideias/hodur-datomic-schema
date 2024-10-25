@@ -43,6 +43,10 @@
   [field]
   (-> field :datomic/tupleAttrs))
 
+(defn ^:private get-optionality
+  [field]
+  (-> field :optional))
+
 (defn ^:private get-cardinality
   [{:keys [field/cardinality]}]
   (if cardinality
@@ -61,6 +65,13 @@
                      (and doc deprecation) (str "\n\n")
                      deprecation (str "DEPRECATION NOTE: " deprecation)))
     m))
+
+(defn ^:private assoc-optionality
+  [m {:keys [field/optional]}]
+  (assoc m :formiguinhas/opcional?
+           (if (nil? optional) false
+                               optional)))
+
 
 (def ^:private defaults-customized-datomic-db-atributes
   {:model.attr/calculado?      false
@@ -124,9 +135,7 @@
           (not is-enum?) (assoc :db/valueType (get-value-type field)
                                 :db/cardinality (get-cardinality field))
 
-          (= (get-value-type field) :db.type/string) (assoc :db/fulltext true)
-
-          #_#_(= (get-value-type field) :db.type/uuid) (assoc :db/unique :db.unique/identity)
+          (= (get-value-type field) :db.type/string) (assoc :db/fulltext false)
 
           (= (-> field :field/type :type/name) "ID") (assoc :db/unique :db.unique/identity)
 
@@ -137,11 +146,13 @@
                                                #(% table-customized-datomic-db-atributes-for-fields)
                                                defaults-customized-datomic-db-atributes))
 
-          (not is-enum?) (assoc-attributes field)
+          (not is-enum?) (-> (assoc-attributes field)
+                             (assoc-optionality field))
 
           is-enum? (assoc-attributes-for-enums field)
 
           :always (assoc-documentation field)))
+
 
 
 (defn ^:private get-type
