@@ -202,17 +202,19 @@
                                        :doc         "Has documentation"
                                        :deprecation "But also deprecation"}
                                      co-workers
-                                     ^{:datomic/type               :db.type/keyword
+                                     ^{:type                       Keyword
                                        :model.attr/apenas-runtime? true}
                                      keyword-type
-                                     ^{:datomic/type :db.type/uri}
+                                     ^{:type                       Symbol}
+                                     symbol-type
+                                     ^{:type Uri}
                                      uri-type
                                      ^{:datomic/type :db.type/double}
                                      double-type
                                      ^{:datomic/type :db.type/bigdec
                                        :deprecation  "This is deprecated"}
                                      bigdec-type
-                                     ^{:datomic/type :db.type/uuid}
+                                     ^{:type UUID}
                                      uuid
                                      ^{:datomic/type       :db.type/tuple
                                        :datomic/tupleAttrs [:employee/age :employee/co-workers]
@@ -268,6 +270,7 @@
                          :employee/number
                          :employee/salary
                          :employee/start-date
+                         :employee/symbol-type
                          :employee/supervisor
                          :employee/tupla
                          :employee/uri-type
@@ -279,7 +282,27 @@
                         (select [LAST ALL :db/ident] s)
                         => [:employee/composite-key])
 
-                  (fact "consegue gerar corretamenet quando é sobreescreito a informacao de apenas-runtime?"
+                  (fact "consegue com type Keywotd"
+
+                        (select-one [ALL ALL (pred #(= (:db/ident %) :employee/keyword-type))] s)
+                        => (match {:db/valueType :db.type/keyword}))
+
+                  (fact "consegue com type Symbol"
+
+                        (select-one [ALL ALL (pred #(= (:db/ident %) :employee/symbol-type))] s)
+                        => (match {:db/valueType :db.type/symbol}))
+
+                  (fact "consegue com type Uri"
+
+                        (select-one [ALL ALL (pred #(= (:db/ident %) :employee/uri-type))] s)
+                        => (match {:db/valueType :db.type/uri}))
+
+                  (fact "consegue com type UUID"
+
+                        (select-one [ALL ALL (pred #(= (:db/ident %) :employee/uuid))] s)
+                        => (match {:db/valueType :db.type/uuid}))
+
+                  (fact "consegue gerar corretamenet qtipo :db/keyword"
                         (select [ALL FIRST]
                                 (select [ALL ALL (collect-one :db/ident) (pred #(= (:formiguinhas/apenas-runtime? %) true))] s))
                         => [:employee/keyword-type])

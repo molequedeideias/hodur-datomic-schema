@@ -1,9 +1,9 @@
 {:paths ["src"]
 
  :deps
-        {org.clojure/clojure {:mvn/version "1.9.0"}
+        {org.clojure/clojure {:mvn/version "1.10.3"}
          hodur/engine        {:git/url "https://github.com/molequedeideias/hodur-engine"
-                              :sha     "b494546256109645f1e9b5781ece2e2c4ff67bd3"}
+                              :sha     "ef810e550f53bdc2c36cb6ea1429ac1acd2a6459"}
          camel-snake-kebab   {:mvn/version "0.4.0"}
          datascript          {:mvn/version "0.16.7"}
          com.rpl/specter     {:mvn/version "1.1.3"}}

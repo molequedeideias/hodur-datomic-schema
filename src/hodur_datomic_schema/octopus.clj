@@ -31,6 +31,10 @@
 
 (defmethod primitive-or-ref-type "ID" [_] :db.type/uuid)
 
+(defmethod primitive-or-ref-type "UUID" [_] :db.type/uuid)
+
+(defmethod primitive-or-ref-type "Uri" [_] :db.type/uri)
+
 (defmethod primitive-or-ref-type :default [_] :db.type/ref)
 
 (defn ^:private get-value-type

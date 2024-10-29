@@ -1,2 +1,2 @@
-{:port         62003
+{
  :middleware   [sc.nrepl.middleware/wrap-letsc]}
